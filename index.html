@@ -2,159 +2,212 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Deep-Core Drill - Simulador de Perforadora Subterránea</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        body {
+        html, body {
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
             background-color: #000000;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #ffffff;
             user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
         }
 
-        /* Botón de Inicio Centrado */
+        /* Pantalla de inicio centrada */
+        #pantalla-inicio {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 40;
+            background: radial-gradient(circle at center, rgba(0, 240, 255, 0.08), #000000 72%);
+        }
+
         #btn-inicio {
-            padding: 20px 55px;
-            font-size: 1.8rem;
+            padding: 18px 48px;
+            font-size: clamp(1.25rem, 4.5vw, 1.85rem);
             font-weight: bold;
             color: #ffffff;
-            background: rgba(10, 5, 25, 0.85);
+            background: radial-gradient(circle at top, rgba(0, 240, 255, 0.22), rgba(10, 5, 25, 0.92));
             border: 2px solid #00f0ff;
             border-radius: 50px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
-            z-index: 40;
-            letter-spacing: 2px;
+            transition: all 0.25s ease;
+            box-shadow: 0 0 28px rgba(0, 240, 255, 0.45), inset 0 0 14px rgba(255, 0, 127, 0.25);
+            letter-spacing: 3px;
         }
 
-        #btn-inicio:hover {
+        #btn-inicio:hover,
+        #btn-inicio:active {
             background-color: #00f0ff;
             color: #000000;
-            box-shadow: 0 0 45px rgba(0, 240, 255, 0.95);
-            transform: scale(1.08);
+            box-shadow: 0 0 42px rgba(0, 240, 255, 0.95);
+            transform: scale(1.04);
         }
 
         /* Controles Flotantes Superiores */
         .controles-sup {
             display: none;
             position: fixed;
-            top: 20px;
-            right: 25px;
-            gap: 12px;
+            top: calc(10px + env(safe-area-inset-top));
+            right: calc(10px + env(safe-area-inset-right));
+            left: calc(10px + env(safe-area-inset-left));
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 8px;
             z-index: 50;
+            pointer-events: none;
         }
 
         .btn-sup {
-            padding: 10px 20px;
-            font-size: 0.95rem;
+            pointer-events: auto;
+            padding: 8px 13px;
+            font-size: clamp(0.75rem, 2.8vw, 0.92rem);
+            font-weight: 600;
             color: #ffffff;
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid rgba(0, 240, 255, 0.5);
-            border-radius: 30px;
-            backdrop-filter: blur(5px);
+            background: rgba(5, 10, 22, 0.88);
+            border: 1px solid rgba(0, 240, 255, 0.55);
+            border-radius: 999px;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.18s ease;
+            white-space: nowrap;
         }
 
-        .btn-sup:hover {
+        .btn-sup:hover,
+        .btn-sup:active {
             background: #00f0ff;
             color: #000000;
         }
 
-        #btn-salir:hover {
+        #btn-salir {
+            border-color: rgba(255, 0, 85, 0.7);
+        }
+
+        #btn-salir:hover,
+        #btn-salir:active {
             background: #ff0055;
             border-color: #ff0055;
             color: #ffffff;
         }
 
-        /* Controles Interactivos de Perforadora (Inferior Derecha) */
+        /* Botones CRIO-FRÍO, RETENER y PERFORAR abajo a la derecha junto a los relojes */
         .controles-broca {
             display: none;
             position: fixed;
-            bottom: 22px;
-            right: 30px;
-            gap: 14px;
+            bottom: calc(12px + env(safe-area-inset-bottom));
+            right: calc(10px + env(safe-area-inset-right));
+            justify-content: flex-end;
+            align-items: center;
+            gap: 6px;
             z-index: 35;
+            pointer-events: none;
         }
 
         .btn-mando {
-            width: 86px;
-            height: 112px;
-            border-radius: 14px;
-            border: 2px solid #fff;
-            font-size: 0.95rem;
-            font-weight: bold;
+            pointer-events: auto;
+            width: clamp(54px, 14.5vw, 84px);
+            height: clamp(74px, 16vh, 104px);
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.85);
+            font-size: clamp(0.62rem, 2.1vw, 0.85rem);
+            font-weight: 800;
+            letter-spacing: 0.2px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            gap: 6px;
-            transition: transform 0.1s ease, box-shadow 0.15s ease;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.9);
+            gap: 2px;
+            transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.85);
             text-align: center;
+            padding: 2px;
+        }
+
+        .btn-mando small {
+            font-size: clamp(0.5rem, 1.6vw, 0.64rem);
+            font-weight: 600;
+            opacity: 0.85;
         }
 
         #btn-refrigerar {
-            background: linear-gradient(180deg, rgba(0, 240, 255, 0.85), rgba(0, 100, 140, 0.95));
+            background: linear-gradient(180deg, rgba(0, 240, 255, 0.92), rgba(0, 95, 145, 0.96));
             border-color: #00f0ff;
             color: #000000;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.45);
         }
 
-        #btn-refrigerar:active, #btn-refrigerar.activo {
-            transform: scale(0.92) translateY(4px);
-            background: #00f0ff;
-            box-shadow: 0 0 35px rgba(0, 240, 255, 0.95);
+        #btn-refrigerar:active,
+        #btn-refrigerar.activo {
+            transform: scale(0.94) translateY(2px);
+            filter: brightness(1.2);
+            box-shadow: 0 0 28px rgba(0, 240, 255, 0.95);
         }
 
         #btn-frenar {
-            background: linear-gradient(180deg, rgba(255, 0, 85, 0.85), rgba(140, 0, 40, 0.95));
+            background: linear-gradient(180deg, rgba(255, 0, 85, 0.9), rgba(130, 0, 40, 0.96));
             border-color: #ff0055;
             color: #ffffff;
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.5);
+            box-shadow: 0 0 16px rgba(255, 0, 85, 0.45);
         }
 
-        #btn-frenar:active, #btn-frenar.activo {
-            transform: scale(0.92) translateY(4px);
-            background: #ff0055;
-            box-shadow: 0 0 35px rgba(255, 0, 85, 0.95);
+        #btn-frenar:active,
+        #btn-frenar.activo {
+            transform: scale(0.94) translateY(2px);
+            filter: brightness(1.2);
+            box-shadow: 0 0 28px rgba(255, 0, 85, 0.95);
         }
 
         #btn-perforar {
-            background: linear-gradient(180deg, rgba(57, 255, 20, 0.85), rgba(20, 130, 0, 0.95));
+            background: linear-gradient(180deg, rgba(57, 255, 20, 0.92), rgba(18, 120, 0, 0.96));
             border-color: #39ff14;
             color: #000000;
-            box-shadow: 0 0 20px rgba(57, 255, 20, 0.5);
+            box-shadow: 0 0 16px rgba(57, 255, 20, 0.45);
         }
 
-        #btn-perforar:active, #btn-perforar.activo {
-            transform: scale(0.92) translateY(4px);
-            background: #39ff14;
-            box-shadow: 0 0 35px rgba(57, 255, 20, 0.95);
+        #btn-perforar:active,
+        #btn-perforar.activo {
+            transform: scale(0.94) translateY(2px);
+            filter: brightness(1.2);
+            box-shadow: 0 0 28px rgba(57, 255, 20, 0.95);
+        }
+
+        @media (min-width: 768px) {
+            .controles-broca {
+                bottom: 22px;
+                right: 24px;
+                gap: 10px;
+            }
         }
 
         #canvas-container {
             display: none;
-            position: absolute;
+            position: fixed;
+            inset: 0;
             width: 100%;
             height: 100%;
+            z-index: 10;
         }
 
         canvas {
             display: block;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
@@ -162,7 +215,9 @@
 
     <audio id="miMusica" src="musica51.mp3" preload="auto" loop></audio>
 
-    <button id="btn-inicio">INICIO</button>
+    <div id="pantalla-inicio">
+        <button id="btn-inicio">INICIO</button>
+    </div>
 
     <div class="controles-sup" id="panel-sup">
         <button class="btn-sup" id="btn-laser">🔦 Láseres: ON</button>
@@ -172,15 +227,15 @@
 
     <div class="controles-broca" id="controles-broca">
         <button class="btn-mando" id="btn-refrigerar">
-            <span>CRIO-FRÍO</span>
-            <small>[C / Espacio]</small>
+            <span>❄ CRIO-FRÍO</span>
+            <small>[C / Esp]</small>
         </button>
         <button class="btn-mando" id="btn-frenar">
-            <span>RETENER</span>
+            <span>🛑 RETENER</span>
             <small>[S / ↓]</small>
         </button>
         <button class="btn-mando" id="btn-perforar">
-            <span>PERFORAR</span>
+            <span>⚡ PERFORAR</span>
             <small>[W / ↑]</small>
         </button>
     </div>
@@ -190,6 +245,7 @@
     </div>
 
     <script>
+        const pantallaInicio = document.getElementById('pantalla-inicio');
         const btnInicio = document.getElementById('btn-inicio');
         const panelSup = document.getElementById('panel-sup');
         const controlesBroca = document.getElementById('controles-broca');
@@ -219,14 +275,14 @@
         // Parámetros físicos de la perforadora
         let velocidadAvance = 0;      // m/s (0 a 35)
         let rpmBroca = 120;           // RPM cabezal de corte (0 a 1200)
-        let temperaturaBroca = 280;   // °C (100°C a 1200°C - peligro > 950°C)
+        let temperaturaBroca = 280;   // °C (100°C a 1150°C - peligro > 850°C)
         let presionHidraulica = 140;  // BAR (50 a 450 BAR)
         let profundidad = 420;        // Metros bajo superficie
         let mineralesExtraidos = 0;   // Unidades cuánticas recolectadas
         let sobrecalentado = false;
 
         let laseresActivos = true;
-        let rumboLateral = 0;         // Dirección de perforación (-1 a 1)
+        let rumboLateral = 0;         // Dirección de perforación (-0.85 a 0.85)
         let anguloCabezal = 0;        // Rotación visual de la broca frontal
 
         // Controles presionados
@@ -236,18 +292,39 @@
         let girandoIzq = false;
         let girandoDer = false;
 
+        // Control táctil de dirección en el canvas
+        let toqueActivo = false;
+        let toqueInicioX = 0;
+        let rumboInicialToque = 0;
+
         // Trazado procedural y partículas
         let semillaMina = {};
         let cristalesMina = [];
         let particulas = [];
 
         function ajustarCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            canvas.width = Math.floor(w * dpr);
+            canvas.height = Math.floor(h * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function getAnchoLogico() {
+            return window.innerWidth;
+        }
+
+        function getAltoLogico() {
+            return window.innerHeight;
         }
 
         window.addEventListener('resize', () => {
             if (activo) ajustarCanvas();
+        });
+
+        window.addEventListener('orientationchange', () => {
+            if (activo) setTimeout(ajustarCanvas, 150);
         });
 
         // Controles de Teclado
@@ -269,6 +346,27 @@
             if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') girandoDer = false;
         });
 
+        // Deslizar el dedo sobre el túnel para orientar el rumbo lateral
+        canvas.addEventListener('touchstart', (e) => {
+            if (!activo || faseJuego !== 'PERFORANDO' || e.touches.length === 0) return;
+            const yToque = e.touches[0].clientY;
+            if (yToque < getAltoLogico() - 150) {
+                toqueActivo = true;
+                toqueInicioX = e.touches[0].clientX;
+                rumboInicialToque = rumboLateral;
+            }
+        }, { passive: true });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (!toqueActivo || e.touches.length === 0) return;
+            const deltaX = (e.touches[0].clientX - toqueInicioX) / (getAnchoLogico() * 0.35);
+            rumboLateral = Math.max(-0.85, Math.min(0.85, rumboInicialToque + deltaX));
+        }, { passive: true });
+
+        canvas.addEventListener('touchend', () => {
+            toqueActivo = false;
+        });
+
         // Eventos táctiles y ratón para mandos
         const bindMando = (btn, setFlag) => {
             const on = (e) => { e.preventDefault(); e.stopPropagation(); setFlag(true); btn.classList.add('activo'); };
@@ -276,8 +374,9 @@
             btn.addEventListener('mousedown', on);
             btn.addEventListener('mouseup', off);
             btn.addEventListener('mouseleave', off);
-            btn.addEventListener('touchstart', on);
-            btn.addEventListener('touchend', off);
+            btn.addEventListener('touchstart', on, { passive: false });
+            btn.addEventListener('touchend', off, { passive: false });
+            btn.addEventListener('touchcancel', off, { passive: false });
         };
 
         bindMando(btnPerforar, (v) => perforando = v);
@@ -297,7 +396,7 @@
         });
 
         btnInicio.addEventListener('click', () => {
-            btnInicio.style.display = 'none';
+            pantallaInicio.style.display = 'none';
             panelSup.style.display = 'flex';
             canvasContainer.style.display = 'block';
 
@@ -323,8 +422,8 @@
             canvasContainer.style.display = 'none';
             panelSup.style.display = 'none';
             controlesBroca.style.display = 'none';
-            btnInicio.style.display = 'block';
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            pantallaInicio.style.display = 'flex';
+            ctx.clearRect(0, 0, getAnchoLogico(), getAltoLogico());
         });
 
         function generarNuevaExcavacion() {
@@ -354,14 +453,13 @@
                 faseDureza: Math.random() * Math.PI * 2
             };
 
-            // Generar vetas de cristales cuánticos en las paredes del túnel
-            const coloresCristal = ['#00f0ff', '#39ff14', '#ff007f', '#ffaa00'];
+            const coloresCristal = ['#00f0ff', '#39ff14', '#ff007f', '#ffaa00', '#b026ff'];
             cristalesMina = [];
-            for (let d = 420; d < 3500; d += 18 + Math.random() * 28) {
+            for (let d = 420; d < 3500; d += 16 + Math.random() * 24) {
                 cristalesMina.push({
                     prof: d,
                     angulo: Math.random() * Math.PI * 2,
-                    tamano: 0.6 + Math.random() * 1.1,
+                    tamano: 0.65 + Math.random() * 1.15,
                     color: coloresCristal[Math.floor(Math.random() * coloresCristal.length)],
                     recolectado: false
                 });
@@ -377,7 +475,6 @@
             return Math.sin(p * semillaMina.freqY1 + semillaMina.faseY) * semillaMina.ampY;
         }
 
-        // Devuelve dureza de la roca entre 0.2 (sedimento blando) y 1.0 (granito cuántico ultra-duro)
         function obtenerDurezaRoca(p) {
             return 0.55 + Math.sin(p * semillaMina.freqDureza + semillaMina.faseDureza) * 0.45;
         }
@@ -385,13 +482,13 @@
         function emitirChispasRoca(cx, cy, cantidad, colorBase) {
             for (let i = 0; i < cantidad; i++) {
                 const ang = Math.random() * Math.PI * 2;
-                const vel = 120 + Math.random() * 380;
+                const vel = 120 + Math.random() * 400;
                 particulas.push({
-                    x: cx + (Math.random() - 0.5) * 90,
-                    y: cy + (Math.random() - 0.5) * 90,
+                    x: cx + (Math.random() - 0.5) * 80,
+                    y: cy + (Math.random() - 0.5) * 80,
                     vx: Math.cos(ang) * vel,
                     vy: Math.sin(ang) * vel,
-                    vida: 0.5 + Math.random() * 0.5,
+                    vida: 0.45 + Math.random() * 0.5,
                     maxVida: 1.0,
                     color: colorBase,
                     tam: 2 + Math.random() * 3.5
@@ -401,9 +498,13 @@
 
         function dibujarIndicadorCircular(ctx, cx, cy, radio, valor, minVal, maxVal, titulo, unidad, colorNormal, umbralAlerta) {
             ctx.save();
-            ctx.fillStyle = '#060a12';
+            const gradFondo = ctx.createRadialGradient(cx, cy - radio * 0.2, radio * 0.1, cx, cy, radio);
+            gradFondo.addColorStop(0, '#0d172a');
+            gradFondo.addColorStop(1, '#04070e');
+
+            ctx.fillStyle = gradFondo;
             ctx.strokeStyle = '#1e293b';
-            ctx.lineWidth = 3.5;
+            ctx.lineWidth = Math.max(2, radio * 0.055);
             ctx.beginPath();
             ctx.arc(cx, cy, radio, 0, Math.PI * 2);
             ctx.fill();
@@ -413,10 +514,10 @@
             const angFin = Math.PI * 2.25;
             const rango = angFin - angInicio;
 
-            ctx.lineWidth = 6;
-            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctx.lineWidth = Math.max(3, radio * 0.095);
+            ctx.strokeStyle = 'rgba(255,255,255,0.12)';
             ctx.beginPath();
-            ctx.arc(cx, cy, radio - 9, angInicio, angFin);
+            ctx.arc(cx, cy, radio * 0.84, angInicio, angFin);
             ctx.stroke();
 
             const frac = Math.min(1, Math.max(0, (valor - minVal) / (maxVal - minVal)));
@@ -427,26 +528,26 @@
             ctx.shadowBlur = 10;
             ctx.shadowColor = colorActivo;
             ctx.beginPath();
-            ctx.arc(cx, cy, radio - 9, angInicio, angInicio + frac * rango);
+            ctx.arc(cx, cy, radio * 0.84, angInicio, angInicio + frac * rango);
             ctx.stroke();
 
             // Aguja
             const angAguja = angInicio + frac * rango;
             ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 2.5;
+            ctx.lineWidth = Math.max(1.5, radio * 0.04);
             ctx.beginPath();
             ctx.moveTo(cx, cy);
-            ctx.lineTo(cx + Math.cos(angAguja) * (radio - 13), cy + Math.sin(angAguja) * (radio - 13));
+            ctx.lineTo(cx + Math.cos(angAguja) * (radio * 0.76), cy + Math.sin(angAguja) * (radio * 0.76));
             ctx.stroke();
 
             ctx.shadowBlur = 0;
             ctx.fillStyle = colorActivo;
-            ctx.font = 'bold 14px monospace';
+            ctx.font = `bold ${Math.max(9, Math.round(radio * 0.24))}px monospace`;
             ctx.textAlign = 'center';
             ctx.fillText(Math.round(valor), cx, cy + radio * 0.42);
 
-            ctx.fillStyle = '#94a3b8';
-            ctx.font = '9px sans-serif';
+            ctx.fillStyle = '#cbd5e1';
+            ctx.font = `bold ${Math.max(6.5, Math.round(radio * 0.14))}px sans-serif`;
             ctx.fillText(`${titulo} ${unidad}`, cx, cy + radio * 0.72);
             ctx.restore();
         }
@@ -461,10 +562,9 @@
             ctx.rotate(angulo + Math.PI / 2);
 
             ctx.fillStyle = color;
-            ctx.shadowBlur = 16 * escala;
+            ctx.shadowBlur = Math.min(22, 16 * escala);
             ctx.shadowColor = color;
 
-            // Prisma cristalino principal
             ctx.beginPath();
             ctx.moveTo(0, -h);
             ctx.lineTo(w, -h * 0.25);
@@ -474,7 +574,6 @@
             ctx.closePath();
             ctx.fill();
 
-            // Cristal secundario inclinado
             ctx.rotate(0.45);
             ctx.beginPath();
             ctx.moveTo(0, -h * 0.7);
@@ -494,8 +593,9 @@
             ultimoFrameTime = timestamp;
             tiempoFase += dt;
 
-            const w = canvas.width;
-            const h = canvas.height;
+            const w = getAnchoLogico();
+            const h = getAltoLogico();
+            const esMovil = w < 640;
 
             // =========================================================================
             // FASE 1: INMERSIÓN EN EL POZO CUÁNTICO (3 SEGUNDOS)
@@ -509,22 +609,20 @@
                 const cx = w / 2;
                 const cy = h / 2;
 
-                // Anillos concéntricos de descenso al pozo de perforación
                 for (let k = 8; k >= 1; k--) {
-                    const radio = (k * 55) * (0.4 + Math.pow(prog, 1.8) * 1.9);
-                    ctx.strokeStyle = k % 2 === 0 ? 'rgba(0, 240, 255, 0.35)' : 'rgba(255, 0, 127, 0.25)';
+                    const radio = (k * Math.min(w, h) * 0.085) * (0.4 + Math.pow(prog, 1.8) * 1.9);
+                    ctx.strokeStyle = k % 2 === 0 ? 'rgba(0, 240, 255, 0.38)' : 'rgba(255, 0, 127, 0.28)';
                     ctx.lineWidth = 3;
                     ctx.beginPath();
                     ctx.arc(cx, cy, radio, 0, Math.PI * 2);
                     ctx.stroke();
                 }
 
-                // Silueta iluminada de la boca del túnel subterráneo
-                const rBoca = 90 + Math.pow(prog, 2.3) * 320;
+                const rBoca = 75 + Math.pow(prog, 2.3) * 280;
                 ctx.fillStyle = '#050811';
                 ctx.strokeStyle = '#00f0ff';
-                ctx.lineWidth = 5;
-                ctx.shadowBlur = 25;
+                ctx.lineWidth = 4;
+                ctx.shadowBlur = 22;
                 ctx.shadowColor = '#00f0ff';
                 ctx.beginPath();
                 ctx.arc(cx, cy, rBoca, 0, Math.PI * 2);
@@ -533,10 +631,10 @@
                 ctx.shadowBlur = 0;
 
                 ctx.fillStyle = '#00f0ff';
-                ctx.font = 'bold 22px sans-serif';
+                ctx.font = `bold ${esMovil ? 15 : 22}px sans-serif`;
                 ctx.textAlign = 'center';
                 const segs = Math.ceil(3 - tiempoFase);
-                ctx.fillText(`ACOPLANDO CABINA DE PERFORACIÓN EN ${segs}...`, cx, h - 65);
+                ctx.fillText(`ACOPLANDO CABINA EN ${segs}...`, cx, h - (esMovil ? 55 : 65));
 
                 if (tiempoFase >= 3.0) {
                     faseJuego = 'PERFORANDO';
@@ -563,14 +661,12 @@
                     controlesBroca.style.display = 'none';
                 }
 
-                // Control de sobrecalentamiento del núcleo de la broca
                 if (temperaturaBroca >= 1050) {
                     sobrecalentado = true;
                 } else if (temperaturaBroca <= 520) {
                     sobrecalentado = false;
                 }
 
-                // Físicas de rotación, avance y temperatura
                 if (perforando && !sobrecalentado) {
                     rpmBroca += (1150 - rpmBroca) * 3.5 * dt;
                     const empujeEfectivo = (28 - durezaActual * 14);
@@ -583,7 +679,6 @@
                     temperaturaBroca = Math.max(120, temperaturaBroca - 65 * dt);
                     presionHidraulica += (90 - presionHidraulica) * 4 * dt;
                 } else {
-                    // Avance en ralentí
                     const velRalenti = sobrecalentado ? 2 : 11;
                     rpmBroca += ((sobrecalentado ? 80 : 480) - rpmBroca) * 2.5 * dt;
                     velocidadAvance += (velRalenti - velocidadAvance) * 2 * dt;
@@ -591,7 +686,6 @@
                     presionHidraulica += (150 - presionHidraulica) * 3 * dt;
                 }
 
-                // Sistema criogénico de enfriamiento rápido
                 if (refrigerando) {
                     temperaturaBroca = Math.max(100, temperaturaBroca - 260 * dt);
                 }
@@ -600,15 +694,13 @@
                 profundidad += velocidadAvance * dt * 1.4;
                 anguloCabezal += (rpmBroca / 60) * Math.PI * 2 * dt;
 
-                // Dirección lateral del cabezal
                 if (girandoIzq) rumboLateral -= 0.9 * dt;
                 if (girandoDer) rumboLateral += 0.9 * dt;
                 rumboLateral = Math.max(-0.85, Math.min(0.85, rumboLateral));
 
-                // Emisión de chispas y esquirlas al perforar roca dura
                 if (velocidadAvance > 4 && Math.random() < 0.45 + durezaActual * 0.45) {
                     const colorChispa = temperaturaBroca > 800 ? '#ff3366' : (durezaActual > 0.7 ? '#ffaa00' : '#00f0ff');
-                    emitirChispasRoca(w / 2, h * 0.48, perforando ? 4 : 2, colorChispa);
+                    emitirChispasRoca(w / 2, h * 0.42, perforando ? 4 : 2, colorChispa);
                 }
             } else if (faseJuego === 'NUCLEO_ALCANZADO') {
                 velocidadAvance = Math.max(0, velocidadAvance - 15 * dt);
@@ -635,6 +727,7 @@
 
             const camX = obtenerDesvioX(profundidad);
             const camY = obtenerDesvioY(profundidad);
+            const centroTunelY = h * (esMovil ? 0.36 : 0.44);
 
             let anillos = [];
             for (let i = numAnillos; i >= 1; i--) {
@@ -642,12 +735,12 @@
                 const profSeg = profBase + i * pasoProf;
                 const escala = 1 / (1 + zIdx * 0.17);
 
-                const dx = (obtenerDesvioX(profSeg) - camX) * Math.pow(zIdx, 1.5) * 11 - (rumboLateral * 240 * escala);
+                const dx = (obtenerDesvioX(profSeg) - camX) * Math.pow(zIdx, 1.5) * 11 - (rumboLateral * (esMovil ? 130 : 240) * escala);
                 const dy = (obtenerDesvioY(profSeg) - camY) * Math.pow(zIdx, 1.45) * 9;
 
                 const cx = w / 2 + dx;
-                const cy = h * 0.48 + dy;
-                const radioTunel = Math.max(w, h) * 0.72 * escala;
+                const cy = centroTunelY + dy;
+                const radioTunel = Math.max(w, h) * (esMovil ? 0.85 : 0.72) * escala;
                 const durezaSeg = obtenerDurezaRoca(profSeg);
 
                 const alcanceLaser = laseresActivos ? 34 : 18;
@@ -658,23 +751,20 @@
                 });
             }
 
-            // Dibujar paredes poligonales rocosas del túnel de lejos hacia la cabina
             const ladosPoligono = 14;
             for (let a = 0; a < anillos.length - 1; a++) {
                 const lej = anillos[a];
                 const cer = anillos[a + 1];
 
-                // Tono de la roca según dureza (granito azulado/violáceo vs basalto oscuro)
-                const luz = 0.08 + cer.luzFoco * 0.85;
-                const rCol = Math.floor((22 + cer.durezaSeg * 38) * luz);
-                const gCol = Math.floor((18 + (1 - cer.durezaSeg) * 32) * luz);
-                const bCol = Math.floor((42 + cer.durezaSeg * 55) * luz);
+                const luz = 0.1 + cer.luzFoco * 0.88;
+                const rCol = Math.floor((28 + cer.durezaSeg * 46) * luz);
+                const gCol = Math.floor((20 + (1 - cer.durezaSeg) * 38) * luz);
+                const bCol = Math.floor((48 + cer.durezaSeg * 62) * luz);
 
                 for (let l = 0; l < ladosPoligono; l++) {
                     const ang1 = (l / ladosPoligono) * Math.PI * 2;
                     const ang2 = ((l + 1) / ladosPoligono) * Math.PI * 2;
 
-                    // Rugosidad rocosa determinista por segmento
                     const rug1Lej = 0.92 + Math.sin(lej.profSeg * 0.2 + l * 1.7) * 0.08;
                     const rug2Lej = 0.92 + Math.sin(lej.profSeg * 0.2 + (l + 1) * 1.7) * 0.08;
                     const rug1Cer = 0.92 + Math.sin(cer.profSeg * 0.2 + l * 1.7) * 0.08;
@@ -690,8 +780,7 @@
                     const x2C = cer.cx + Math.cos(ang2) * cer.radioTunel * rug2Cer;
                     const y2C = cer.cy + Math.sin(ang2) * cer.radioTunel * rug2Cer;
 
-                    // Sombreado facetado para volumen 3D de roca
-                    const sombraFaceta = 0.8 + Math.sin(l * 2.1 + lej.profSeg * 0.1) * 0.2;
+                    const sombraFaceta = 0.78 + Math.sin(l * 2.1 + lej.profSeg * 0.1) * 0.22;
                     ctx.fillStyle = `rgb(${Math.floor(rCol * sombraFaceta)}, ${Math.floor(gCol * sombraFaceta)}, ${Math.floor(bCol * sombraFaceta)})`;
                     ctx.beginPath();
                     ctx.moveTo(x1L, y1L);
@@ -701,9 +790,8 @@
                     ctx.closePath();
                     ctx.fill();
 
-                    // Aristas minerales luminosas en vetas duras
                     if (cer.durezaSeg > 0.72 && l % 3 === 0) {
-                        ctx.strokeStyle = `rgba(0, 240, 255, ${cer.luzFoco * 0.35})`;
+                        ctx.strokeStyle = `rgba(0, 240, 255, ${cer.luzFoco * 0.42})`;
                         ctx.lineWidth = Math.max(1, 2 * cer.escala);
                         ctx.beginPath();
                         ctx.moveTo(x1L, y1L);
@@ -712,18 +800,16 @@
                     }
                 }
 
-                // Cristales cuánticos incrustados en las paredes
                 for (let cristal of cristalesMina) {
                     if (!cristal.recolectado && Math.abs(cristal.prof - cer.profSeg) < pasoProf * 0.5) {
-                        const cxCris = cer.cx + Math.cos(cristal.angulo) * (cer.radioTunel * 0.92);
-                        const cyCris = cer.cy + Math.sin(cristal.angulo) * (cer.radioTunel * 0.92);
-                        dibujarCristal3D(ctx, cxCris, cyCris, cer.escala * cristal.tamano * 1.5, cristal.angulo, cristal.color);
+                        const cxCris = cer.cx + Math.cos(cristal.angulo) * (cer.radioTunel * 0.9);
+                        const cyCris = cer.cy + Math.sin(cristal.angulo) * (cer.radioTunel * 0.9);
+                        dibujarCristal3D(ctx, cxCris, cyCris, cer.escala * cristal.tamano * (esMovil ? 1.25 : 1.5), cristal.angulo, cristal.color);
 
-                        // Recolectar mineral al pasar cerca
-                        if (cer.zIdx < 2.2) {
+                        if (cer.zIdx < 2.3) {
                             cristal.recolectado = true;
                             mineralesExtraidos += Math.floor(15 + cristal.tamano * 20);
-                            emitirChispasRoca(cxCris, cyCris, 10, cristal.color);
+                            emitirChispasRoca(cxCris, cyCris, 12, cristal.color);
                         }
                     }
                 }
@@ -736,43 +822,45 @@
             const cabezalX = fondoTunel.cx;
             const cabezalY = fondoTunel.cy;
 
-            // Haces láser proyectados desde la cabina hacia el frente de excavación
             if (laseresActivos) {
                 ctx.save();
                 const origenesLaser = [
-                    { x: w * 0.14, y: h * 0.25, color: 'rgba(0, 240, 255, 0.22)' },
-                    { x: w * 0.86, y: h * 0.25, color: 'rgba(0, 240, 255, 0.22)' },
-                    { x: w * 0.22, y: h * 0.72, color: 'rgba(255, 0, 127, 0.20)' },
-                    { x: w * 0.78, y: h * 0.72, color: 'rgba(255, 0, 127, 0.20)' }
+                    { x: w * 0.12, y: h * 0.22, color: 'rgba(0, 240, 255, 0.26)' },
+                    { x: w * 0.88, y: h * 0.22, color: 'rgba(0, 240, 255, 0.26)' },
+                    { x: w * 0.18, y: h * 0.58, color: 'rgba(255, 0, 127, 0.24)' },
+                    { x: w * 0.82, y: h * 0.58, color: 'rgba(255, 0, 127, 0.24)' }
                 ];
 
                 for (let lsr of origenesLaser) {
                     const gradL = ctx.createLinearGradient(lsr.x, lsr.y, cabezalX, cabezalY);
                     gradL.addColorStop(0, lsr.color);
-                    gradL.addColorStop(1, 'rgba(0, 240, 255, 0.02)');
+                    gradL.addColorStop(1, 'rgba(0, 240, 255, 0.03)');
 
                     ctx.strokeStyle = gradL;
-                    ctx.lineWidth = perforando ? 14 : 7;
+                    ctx.lineWidth = perforando ? (esMovil ? 9 : 14) : (esMovil ? 5 : 7);
                     ctx.beginPath();
                     ctx.moveTo(lsr.x, lsr.y);
-                    ctx.lineTo(cabezalX + Math.cos(anguloCabezal) * 28, cabezalY + Math.sin(anguloCabezal) * 28);
+                    ctx.lineTo(cabezalX + Math.cos(anguloCabezal) * 22, cabezalY + Math.sin(anguloCabezal) * 22);
                     ctx.stroke();
                 }
                 ctx.restore();
             }
 
-            // Cabezal giratorio de brocas de diamante en el frente de perforación
             ctx.save();
             ctx.translate(cabezalX, cabezalY);
             ctx.rotate(anguloCabezal);
 
-            const rBroca = 46;
+            const rBroca = esMovil ? 34 : 46;
             const colorIncandescencia = temperaturaBroca > 850 ? '#ff0055' : (temperaturaBroca > 600 ? '#ffaa00' : '#00f0ff');
 
             ctx.strokeStyle = colorIncandescencia;
             ctx.lineWidth = 3;
             ctx.shadowBlur = 18;
             ctx.shadowColor = colorIncandescencia;
+
+            ctx.beginPath();
+            ctx.arc(0, 0, rBroca * 0.45, 0, Math.PI * 2);
+            ctx.stroke();
 
             for (let b = 0; b < 6; b++) {
                 const angB = (b / 6) * Math.PI * 2;
@@ -781,15 +869,13 @@
                 ctx.lineTo(Math.cos(angB) * rBroca, Math.sin(angB) * rBroca);
                 ctx.stroke();
 
-                // Dientes de corte de plasma
                 ctx.fillStyle = '#ffffff';
                 ctx.beginPath();
-                ctx.arc(Math.cos(angB) * (rBroca * 0.72), Math.sin(angB) * (rBroca * 0.72), 3.5, 0, Math.PI * 2);
+                ctx.arc(Math.cos(angB) * (rBroca * 0.72), Math.sin(angB) * (rBroca * 0.72), esMovil ? 2.8 : 3.5, 0, Math.PI * 2);
                 ctx.fill();
             }
             ctx.restore();
 
-            // Partículas de chispas y esquirlas volando hacia la cabina
             ctx.save();
             for (let i = particulas.length - 1; i >= 0; i--) {
                 const p = particulas[i];
@@ -813,143 +899,125 @@
             ctx.restore();
 
             // =========================================================================
-            // INTERIOR DE LA CABINA BLINDADA DE LA PERFORADORA
+            // CONSOLA INFERIOR: CAJA IZQ + RELOJES CENTRO + BOTONES DER
             // =========================================================================
             ctx.save();
 
-            // Vibración mecánica proporcional a RPM y dureza de la roca
-            const intensidadVib = (rpmBroca / 1200) * (0.8 + durezaActual * 2.6);
-            const vibX = velocidadAvance > 0.5 ? (Math.random() - 0.5) * intensidadVib * 2 : 0;
-            const vibY = velocidadAvance > 0.5 ? (Math.random() - 0.5) * intensidadVib * 2 : 0;
-
+            const intensidadVib = (rpmBroca / 1200) * (0.8 + durezaActual * 2.4);
+            const vibX = velocidadAvance > 0.5 ? (Math.random() - 0.5) * intensidadVib * 1.8 : 0;
+            const vibY = velocidadAvance > 0.5 ? (Math.random() - 0.5) * intensidadVib * 1.8 : 0;
             ctx.translate(vibX, vibY);
 
-            // Estructura blindada del marco del parabrisas
-            ctx.fillStyle = '#060911';
-            ctx.strokeStyle = '#1e293b';
-            ctx.lineWidth = 3;
-
-            // Marco exterior hexagonal de cabina
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(w, 0);
-            ctx.lineTo(w, h);
-            ctx.lineTo(w - 65, h);
-            ctx.lineTo(w - 35, 80);
-            ctx.lineTo(w * 0.72, 35);
-            ctx.lineTo(w * 0.28, 35);
-            ctx.lineTo(35, 80);
-            ctx.lineTo(65, h);
-            ctx.lineTo(0, h);
-            ctx.closePath();
-            ctx.fill();
-
-            // Barras de refuerzo estructural en las esquinas del cristal
-            ctx.strokeStyle = 'rgba(0, 240, 255, 0.25)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(35, 80);
-            ctx.lineTo(w * 0.28, 35);
-            ctx.lineTo(w * 0.72, 35);
-            ctx.lineTo(w - 35, 80);
-            ctx.stroke();
-
-            // Consola de instrumentos inferior
-            const altoConsola = 165;
+            const altoConsola = esMovil ? 116 : 148;
             const topConsola = h - altoConsola;
 
             const gradConsola = ctx.createLinearGradient(0, topConsola, 0, h);
-            gradConsola.addColorStop(0, '#101827');
-            gradConsola.addColorStop(1, '#05080f');
+            gradConsola.addColorStop(0, 'rgba(16, 24, 39, 0.96)');
+            gradConsola.addColorStop(1, 'rgba(4, 7, 14, 0.99)');
             ctx.fillStyle = gradConsola;
             ctx.strokeStyle = '#00f0ff';
             ctx.lineWidth = 2;
 
             ctx.beginPath();
             ctx.moveTo(0, h);
-            ctx.lineTo(0, topConsola + 25);
-            ctx.lineTo(w * 0.14, topConsola);
-            ctx.lineTo(w * 0.64, topConsola);
-            ctx.lineTo(w * 0.78, topConsola + 30);
-            ctx.lineTo(w, topConsola + 30);
+            ctx.lineTo(0, topConsola + 12);
+            ctx.lineTo(w * 0.08, topConsola);
+            ctx.lineTo(w * 0.92, topConsola);
+            ctx.lineTo(w, topConsola + 12);
             ctx.lineTo(w, h);
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
 
-            // Tres relojes principales de ingeniería:
-            // 1. Temperatura de Broca (°C)
-            // 2. Presión Hidráulica (BAR)
-            // 3. Velocidad de Perforación (m/s)
-            const baseRelojesX = w * 0.36;
-            const centroRelojesY = topConsola + 84;
+            // Caja de telemetría ABAJO A LA IZQUIERDA (al lado de los relojes)
+            const hudX = esMovil ? 8 : 18;
+            const hudW = esMovil ? Math.min(136, w * 0.34) : 230;
+            const hudH = altoConsola - 18;
+            const hudY = topConsola + 9;
 
-            dibujarIndicadorCircular(ctx, baseRelojesX - 145, centroRelojesY, 58, temperaturaBroca, 100, 1150, 'TEMP BROCA', '°C', '#ffaa00', 850);
-            dibujarIndicadorCircular(ctx, baseRelojesX, centroRelojesY, 58, presionHidraulica, 50, 450, 'PRESIÓN', 'BAR', '#00f0ff', 380);
-            dibujarIndicadorCircular(ctx, baseRelojesX + 145, centroRelojesY, 58, velocidadAvance, 0, 35, 'AVANCE', 'M/S', '#39ff14', null);
-
-            // Alerta visual de sobrecalentamiento en cabina
-            if (sobrecalentado) {
-                ctx.fillStyle = 'rgba(255, 0, 85, 0.22)';
-                ctx.fillRect(0, 0, w, h);
-
-                ctx.textAlign = 'center';
-                ctx.font = 'bold 28px sans-serif';
-                ctx.fillStyle = '#ff0055';
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = '#ff0055';
-                ctx.fillText('⚠ NÚCLEO SOBRECALENTADO - USA CRIO-FRÍO [C] ⚠', w / 2, h * 0.25);
-                ctx.shadowBlur = 0;
-            }
-
-            // Panel HUD superior izquierdo (Telemetría de Profundidad y Minerales)
-            ctx.fillStyle = 'rgba(5, 10, 20, 0.78)';
-            ctx.strokeStyle = 'rgba(0, 240, 255, 0.45)';
+            ctx.fillStyle = 'rgba(5, 10, 20, 0.88)';
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.5)';
             ctx.lineWidth = 1.5;
             ctx.beginPath();
-            ctx.roundRect(25, 20, 295, 104, 12);
+            ctx.roundRect(hudX, hudY, hudW, hudH, 8);
             ctx.fill();
             ctx.stroke();
 
             ctx.textAlign = 'left';
-            ctx.font = 'bold 15px sans-serif';
-            ctx.fillStyle = '#00f0ff';
-            ctx.fillText(`TIEMPO A VETA MADRE: ${tiempoRestante.toFixed(1)} s`, 40, 44);
+            const padX = hudX + (esMovil ? 7 : 12);
+            const lineStep = hudH / 4.3;
+            const baseY = hudY + lineStep * 0.85;
 
-            ctx.font = '13px sans-serif';
+            ctx.font = `bold ${esMovil ? 9 : 12}px sans-serif`;
+            ctx.fillStyle = '#00f0ff';
+            ctx.fillText(`TIEMPO: ${tiempoRestante.toFixed(1)}s`, padX, baseY);
+
+            ctx.font = `${esMovil ? 8.5 : 11.5}px sans-serif`;
             ctx.fillStyle = '#39ff14';
-            ctx.fillText(`PROFUNDIDAD: -${Math.floor(profundidad)} METROS`, 40, 66);
+            ctx.fillText(`PROF: -${Math.floor(profundidad)}m`, padX, baseY + lineStep);
 
             ctx.fillStyle = '#ff007f';
-            ctx.fillText(`CRISTALES CUÁNTICOS: ${mineralesExtraidos} UDS`, 40, 88);
+            ctx.fillText(`CRIST: ${mineralesExtraidos}`, padX, baseY + lineStep * 2);
 
-            const nivelDurezaTxt = durezaActual > 0.75 ? 'GRANITO ULTRA-DURO' : (durezaActual > 0.45 ? 'ROCA BASÁLTICA' : 'SEDIMENTO BLANDO');
+            const nivelDurezaTxt = durezaActual > 0.75 ? 'GRANITO' : (durezaActual > 0.45 ? 'BASALTO' : 'SEDIMENTO');
             ctx.fillStyle = '#ffaa00';
-            ctx.fillText(`ESTRATO: ${nivelDurezaTxt}`, 40, 110);
+            ctx.fillText(`ESTR: ${nivelDurezaTxt}`, padX, baseY + lineStep * 3);
+
+            // Ancho reservado a la derecha para los 3 botones (CRIO-FRÍO, RETENER, PERFORAR)
+            const anchoBotonesDer = esMovil ? Math.min(182, w * 0.46) : 275;
+            const zonaIzqFin = hudX + hudW + 6;
+            const zonaDerInicio = w - anchoBotonesDer - 10;
+            const anchoCentro = Math.max(90, zonaDerInicio - zonaIzqFin);
+            const centroRelojesX = zonaIzqFin + anchoCentro / 2;
+            const centroRelojesY = topConsola + altoConsola * 0.54;
+
+            const radioReloj = Math.max(
+                18,
+                Math.min(esMovil ? 28 : 50, anchoCentro / 6.4, (altoConsola - 22) * 0.44)
+            );
+            const separacionReloj = Math.min(esMovil ? 44 : 112, anchoCentro * 0.33);
+
+            dibujarIndicadorCircular(ctx, centroRelojesX - separacionReloj, centroRelojesY, radioReloj, temperaturaBroca, 100, 1150, 'TEMP', '°C', '#ffaa00', 850);
+            dibujarIndicadorCircular(ctx, centroRelojesX, centroRelojesY, radioReloj, presionHidraulica, 50, 450, 'PRES', 'BAR', '#00f0ff', 380);
+            dibujarIndicadorCircular(ctx, centroRelojesX + separacionReloj, centroRelojesY, radioReloj, velocidadAvance, 0, 35, 'AVAN', 'M/S', '#39ff14', null);
+
+            // Alerta visual de sobrecalentamiento
+            if (sobrecalentado) {
+                ctx.fillStyle = 'rgba(255, 0, 85, 0.2)';
+                ctx.fillRect(0, 0, w, h);
+
+                ctx.textAlign = 'center';
+                ctx.font = `bold ${esMovil ? 13 : 22}px sans-serif`;
+                ctx.fillStyle = '#ff0055';
+                ctx.shadowBlur = 18;
+                ctx.shadowColor = '#ff0055';
+                ctx.fillText('⚠ NÚCLEO SOBRECALENTADO - USA CRIO-FRÍO ⚠', w / 2, topConsola - 24);
+                ctx.shadowBlur = 0;
+            }
 
             // =========================================================================
             // PANTALLA DE VETA MADRE ALCANZADA (60 SEGUNDOS)
             // =========================================================================
             if (faseJuego === 'NUCLEO_ALCANZADO') {
-                ctx.fillStyle = 'rgba(0, 5, 15, 0.78)';
+                ctx.fillStyle = 'rgba(0, 5, 15, 0.84)';
                 ctx.fillRect(0, 0, w, h);
 
                 ctx.textAlign = 'center';
-                ctx.font = 'bold 42px sans-serif';
+                ctx.font = `bold ${esMovil ? 22 : 40}px sans-serif`;
                 ctx.fillStyle = '#39ff14';
-                ctx.shadowBlur = 25;
+                ctx.shadowBlur = 22;
                 ctx.shadowColor = '#39ff14';
-                ctx.fillText('¡VETA MADRE ALCANZADA!', w / 2, h * 0.36);
+                ctx.fillText('¡VETA MADRE ALCANZADA!', w / 2, h * 0.34);
 
                 ctx.shadowBlur = 0;
-                ctx.font = '22px sans-serif';
+                ctx.font = `${esMovil ? 13 : 20}px sans-serif`;
                 ctx.fillStyle = '#ffffff';
-                ctx.fillText(`Profundidad final: -${Math.floor(profundidad)} m | Cristales extraídos: ${mineralesExtraidos}`, w / 2, h * 0.44);
+                ctx.fillText(`Profundidad: -${Math.floor(profundidad)} m · Cristales: ${mineralesExtraidos}`, w / 2, h * 0.43);
 
-                ctx.font = '18px sans-serif';
+                ctx.font = `${esMovil ? 12 : 17}px sans-serif`;
                 ctx.fillStyle = '#00f0ff';
                 const cuentaReinicio = Math.ceil(3 - tiempoFase);
-                ctx.fillText(`Iniciando nueva excavación en ${cuentaReinicio}...`, w / 2, h * 0.52);
+                ctx.fillText(`Nueva excavación en ${cuentaReinicio}...`, w / 2, h * 0.51);
             }
 
             ctx.restore();
